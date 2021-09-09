@@ -1,0 +1,8 @@
+# Auto detect text files and perform LF normalization
+* text=true
+* eol=lf
+
+# Never modify line endings of bash, MS-DOS, and PowerShell scripts
+*.sh eol=lf
+*.bat eol=crlf
+*.ps1 eol=crlf
