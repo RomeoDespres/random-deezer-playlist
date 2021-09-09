@@ -1,0 +1,53 @@
+name: Deploy to Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository contents
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install --target . -r requirements.txt
+      
+      - name: Build compressed bundle
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./bundle.zip ./
+      
+      - name: Upload compressed bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: bundle
+          path: bundle.zip
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download compressed bundle
+        uses: actions/download-artifact@v2
+        with:
+          name: bundle
+        
+      - name: Deploy
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: eu-west-3
+          function_name: random-deezer-playlist
+          zip_file: bundle.zip
+          environment: DEEZER_ACCESS_TOKEN=${{ secrets.DEEZER_ACCESS_TOKEN }},RANDOM_PLAYLIST_ID=9460334522,RANDOM_PLAYLIST_COUNTRY=FR

@@ -2,7 +2,7 @@ from bisect import bisect_left, insort
 import itertools
 import os
 import random
-from typing import Generator, Iterable, List, Optional
+from typing import Any, Generator, Iterable, List, Optional
 
 import requests
 
@@ -130,3 +130,7 @@ def update_playlist(playlist_length: int = 100) -> None:
         get_random_track_ids(client, country), playlist_length
     )
     client.add_to_playlist(playlist_id, track_ids)
+
+
+def lambda_handler(event: Any, lambda_context: Any) -> None:
+    update_playlist()
